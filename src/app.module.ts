@@ -15,10 +15,13 @@ import { NotificationModule } from './notification/notification.module';
 import { ChatModule } from './chat/chat.module';
 import { PaymentsModule } from './payments/payments.module';
 
+import { EmailService } from 'verifmail/email.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true, // Make ConfigModule global
+      envFilePath: '.env', // Specify the env file
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -40,6 +43,6 @@ import { PaymentsModule } from './payments/payments.module';
     PaymentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EmailService],
 })
 export class AppModule {}

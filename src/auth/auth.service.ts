@@ -230,4 +230,30 @@ export class AuthService {
 
     return { message: 'Mot de passe réinitialisé avec succès' };
   }
+ async findOrCreateGoogleUser(googleUser: {
+  email: string;
+  prenom: string;
+  nom: string;
+  picture?: string;
+  googleId: string;
+}) {
+  let user = await this.userModel.findOne({ email: googleUser.email });
+
+  if (!user) {
+    user = new this.userModel({
+      email: googleUser.email,
+      prenom: googleUser.prenom,
+      nom: googleUser.nom,
+      picture: googleUser.picture,   // ← "picture" pas "photo"
+      provider: 'google',            // ← "provider" existe dans ton schema ✅
+      providerId: googleUser.googleId, // ← "providerId" existe dans ton schema ✅
+      password: null,
+      isVerified: true,
+      role: 'USER',                  // ← "USER" majuscule comme ton enum ✅
+    });
+    await user.save();
+  }
+
+  return this.login(user.toObject());
+}
 }

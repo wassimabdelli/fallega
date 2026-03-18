@@ -11,7 +11,8 @@ import {
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-
+import { Get, Req, Res, UseGuards } from '@nestjs/common';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -215,4 +216,26 @@ export class AuthController {
 
     return this.authService.resetPasswordWithCode(email, code, newPassword);
   }
+  // GOOGLE AUTH - Step 1: Redirect to Google
+@Get('google')
+@UseGuards(GoogleAuthGuard)
+@ApiOperation({ summary: 'Connexion avec Google' })
+async googleAuth() {
+  // NestJS redirige automatiquement vers Google
 }
+
+// GOOGLE AUTH - Step 2: Callback after Google login
+@Get('google/callback')
+@UseGuards(GoogleAuthGuard)
+async googleCallback(@Req() req: any, @Res() res: any) {
+  // req.user contient déjà { user, access_token } retourné par findOrCreateGoogleUser
+  const { access_token, user } = req.user;
+
+  // Redirige vers ton frontend avec le token
+  return res.redirect(
+    `http://localhost:3001/auth/google/success?token=${access_token}&userId=${user._id}`
+  );
+}
+}
+
+
