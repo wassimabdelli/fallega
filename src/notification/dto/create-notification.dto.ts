@@ -8,7 +8,7 @@ export class CreateNotificationDto {
 
   @ApiProperty({ example: 'Votre réservation a été confirmée.', description: 'Message' })
   @IsString()
-  message: string;
+  body: string;
 
   @ApiProperty({ example: 'INFO', description: 'Type de notification' })
   @IsString()

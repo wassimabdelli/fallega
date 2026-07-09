@@ -34,46 +34,24 @@ export class UsersService {
   remove(id: string) {
     return this.usermodel.findByIdAndDelete(id).exec();
   }
-  // Rechercher des arbitres par nom, prénom ou email
-  async searchArbitres(query: string) {
-    const regex = new RegExp(query, 'i'); // 'i' = insensible à la casse
-    return this.usermodel
-      .find({
-        role: 'ARBITRE',
-        $or: [{ nom: regex }, { prenom: regex }, { email: regex }],
-      })
-      .exec();
-  }
-  // Rechercher des joueurs par nom, prénom ou email
-  async searchJoueurs(query: string) {
-    const regex = new RegExp(query, 'i'); // 'i' = insensible à la casse
-    return this.usermodel
-      .find({
-        role: 'JOUEUR',
-        $or: [{ nom: regex }, { prenom: regex }, { email: regex }],
-      })
-      .exec();
-  }
-  // Rechercher des joueurs par nom, prénom ou email
-  async searchCoach(query: string) {
-    const regex = new RegExp(query, 'i'); // 'i' = insensible à la casse
-    return this.usermodel
-      .find({
-        role: 'COACH',
-        $or: [{ nom: regex }, { prenom: regex }, { email: regex }],
-      })
-      .exec();
-  }
+  // Recherche instantanée générale - cherche tous les utilisateurs par nom, prénom ou email
+  async searchUsers(query: string) {
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
 
-  // Rechercher des coachs et arbitres par nom, prénom ou email
-async searchCoachsArbitres(query: string) {
-  const regex = new RegExp(query, 'i'); // insensible à la casse
-  return this.usermodel
-    .find({
-      role: { $in: ['COACH', 'ARBITRE'] },
-      $or: [{ nom: regex }, { prenom: regex }, { email: regex }],
-    })
-    .exec();
-}
+    const regex = new RegExp(query.trim(), 'i'); // 'i' = insensible à la casse
+    return this.usermodel
+      .find({
+        $or: [
+          { nom: regex },
+          { prenom: regex },
+          { email: regex },
+        ],
+      })
+      .select('-password') // Exclure le mot de passe des résultats
+      .limit(20) // Limiter les résultats pour la recherche instantanée
+      .exec();
+  }
 
 }

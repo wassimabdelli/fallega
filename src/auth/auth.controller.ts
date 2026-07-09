@@ -236,6 +236,26 @@ async googleCallback(@Req() req: any, @Res() res: any) {
     `http://localhost:3001/auth/google/success?token=${access_token}&userId=${user._id}`
   );
 }
+
+// GOOGLE AUTH MOBILE - New endpoint for mobile apps
+@Post('google-mobile')
+@ApiOperation({ summary: 'Connexion Google depuis Mobile' })
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      email: { type: 'string' },
+      prenom: { type: 'string' },
+      nom: { type: 'string' },
+      picture: { type: 'string' },
+      googleId: { type: 'string' },
+    },
+    required: ['email', 'googleId'],
+  },
+})
+async googleMobileAuth(@Body() googleUser: any) {
+  return this.authService.findOrCreateGoogleUser(googleUser);
+}
 }
 
 

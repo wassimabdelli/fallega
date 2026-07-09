@@ -29,28 +29,52 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-/// ---------------- Recherche COACH et ARBITRES----------------
-   /**
-   * Rechercher tous les coachs et arbitres par nom, prénom ou email
+/// ---------------- Recherche INSTANTANÉE GÉNÉRALE ----------------
+  /**
+   * Recherche instantanée d'utilisateurs par nom, prénom ou email
+   * Retourne jusqu'à 20 résultats maximum
    */
-    @Get('search/coachs-arbitres')
-  @ApiOperation({ summary: 'Recherche des coachs et arbitres par nom, prénom ou email' })
-  @ApiQuery({ name: 'q', type: String, description: 'Texte de recherche' })
-  @ApiResponse({ status: 200, description: 'Liste des coachs et arbitres trouvés', type: [User] })
-  @ApiResponse({ status: 404, description: 'Aucun utilisateur trouvé' })
-  async searchCoachsArbitres(@Query('q') query: string): Promise<User[]> {
-    if (!query) {
+  @Get('search')
+  @ApiOperation({ 
+    summary: 'Recherche instantanée d\'utilisateurs',
+    description: 'Recherche des utilisateurs par nom, prénom ou email. Retourne jusqu\'à 20 résultats maximum sans mot de passe.' 
+  })
+  @ApiQuery({ 
+    name: 'q', 
+    type: String, 
+    required: true,
+    description: 'Texte de recherche (nom, prénom ou email)' 
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Liste des utilisateurs trouvés',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          _id: { type: 'string', description: 'ID de l\'utilisateur' },
+          nom: { type: 'string', description: 'Nom de l\'utilisateur' },
+          prenom: { type: 'string', description: 'Prénom de l\'utilisateur' },
+          email: { type: 'string', description: 'Email de l\'utilisateur' },
+          role: { type: 'string', description: 'Rôle de l\'utilisateur' },
+        }
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'Paramètre de recherche manquant' 
+  })
+  async searchUsers(@Query('q') query: string): Promise<User[]> {
+    if (!query || query.trim().length === 0) {
       throw new NotFoundException('Veuillez fournir un texte de recherche');
     }
 
-    const results = await this.usersService.searchCoachsArbitres(query);
-
-    if (!results || results.length === 0) {
-      throw new NotFoundException('Aucun coach ou arbitre trouvé');
-    }
-
+    const results = await this.usersService.searchUsers(query.trim());
     return results;
   }
+
 
   @Post()
   @ApiOperation({ summary: 'Créer un nouvel utilisateur' })
@@ -92,41 +116,7 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  // ---------------- Recherche ARBITRES ----------------
-  @Get('search/arbitres')
-  @ApiOperation({ summary: 'Rechercher des arbitres par nom, prénom ou email' })
-  @ApiQuery({ name: 'q', description: 'Texte de recherche' })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des arbitres correspondants.',
-  })
-  searchArbitres(@Param() query: any, @Query('q') q: string) {
-    return this.usersService.searchArbitres(q);
-  }
 
-  // ---------------- Recherche JOUEURS ----------------
-  @Get('search/joueurs')
-  @ApiOperation({ summary: 'Rechercher des joueurs par nom, prénom ou email' })
-  @ApiQuery({ name: 'q', description: 'Texte de recherche' })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des joueurs correspondants.',
-  })
-  searchJoueurs(@Param() query: any, @Query('q') q: string) {
-    return this.usersService.searchJoueurs(q);
-  }
-
-  /// ---------------- Recherche COACH ----------------
-    @Get('search/coach')
-  @ApiOperation({ summary: 'Rechercher des Coach par nom, prénom ou email' })
-  @ApiQuery({ name: 'q', description: 'Texte de recherche' })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des coach correspondants.',
-  })
-  searchCoach(@Param() query: any, @Query('q') q: string) {
-    return this.usersService.searchCoach(q);
-  }
 
   
 }

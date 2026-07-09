@@ -5,15 +5,15 @@ import { EquipementStockController } from './equipement-stock.controller';
 import {
   EquipmentItem,
   EquipmentItemSchema,
-  EquipmentStock,
-  EquipmentStockSchema,
+  EquipmentRental,
+  EquipmentRentalSchema,
 } from 'src/schemas/equipement-stock.schemas';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: EquipmentItem.name, schema: EquipmentItemSchema },
-      { name: EquipmentStock.name, schema: EquipmentStockSchema },
+      { name: EquipmentRental.name, schema: EquipmentRentalSchema },
     ]),
   ],
   controllers: [EquipementStockController],

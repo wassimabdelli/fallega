@@ -1,22 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from './user.schemas';
 
 export type ConversationDocument = Conversation & Document;
 
 @Schema({ timestamps: true })
 export class Conversation {
-  @Prop({ default: false })
-  isGroup: boolean;
+  @Prop({ type: [Types.ObjectId], ref: 'User', required: true })
+  participants: Types.ObjectId[];
 
-  @Prop()
-  title: string;
+  @Prop({ type: String, required: false })
+  name?: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
-  participants: User[];
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
+  admin?: Types.ObjectId;
 
-  @Prop()
-  lastMessageAt: Date;
+  @Prop({ type: String, enum: ['private', 'group'], default: 'private' })
+  type: 'private' | 'group';
+
+  @Prop({ type: Date, required: false })
+  lastMessageAt?: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'Message', required: false })
+  lastMessage?: Types.ObjectId;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

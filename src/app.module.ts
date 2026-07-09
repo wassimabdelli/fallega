@@ -13,9 +13,13 @@ import { BadgeModule } from './badge/badge.module';
 import { PointsFideliteModule } from './points-fidelite/points-fidelite.module';
 import { NotificationModule } from './notification/notification.module';
 import { ChatModule } from './chat/chat.module';
+import { MessageModule } from './message/message.module';
 import { PaymentsModule } from './payments/payments.module';
 
 import { EmailService } from 'verifmail/email.service';
+import { CallModule } from './call/call.module';
+import { FriendshipModule } from './friendship/friendship.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -40,7 +44,11 @@ import { EmailService } from 'verifmail/email.service';
     PointsFideliteModule,
     NotificationModule,
     ChatModule,
+    MessageModule,
     PaymentsModule,
+    CallModule,
+    FriendshipModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

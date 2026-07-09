@@ -1,29 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from './user.schemas';
-import { Event } from './event.schemas';
 
 export type InvitationDocument = Invitation & Document;
 
 @Schema({ timestamps: true })
 export class Invitation {
-  @Prop({ required: true })
+  @Prop({ required: true, default: 'PENDING', enum: ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED'] })
   status: string;
-
-  @Prop({ default: Date.now })
-  sentAt: Date;
 
   @Prop()
   respondedAt: Date;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  sender: User;
+  sender: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  receiver: User;
+  receiver: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Event', required: true })
-  event: Event;
+  @Prop({ type: Types.ObjectId, ref: 'Event' })
+  event: Types.ObjectId;
 }
 
 export const InvitationSchema = SchemaFactory.createForClass(Invitation);
