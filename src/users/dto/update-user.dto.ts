@@ -55,11 +55,27 @@ export class UpdateUserDto {
   password?: string;
 
   @ApiPropertyOptional({
-    example: 'ARBITRE',
-    enum: ['JOUEUR', 'OWNER', 'ARBITRE'],
+    example: 'USER',
+    enum: ['USER', 'ADMIN'],
     description: 'Nouveau rôle attribué',
   })
-  @IsEnum(['JOUEUR', 'OWNER', 'ARBITRE'])
+  @IsEnum(['USER', 'ADMIN'])
   @IsOptional()
   role?: string;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Indique si l\'utilisateur est bloqué',
+  })
+  @IsOptional()
+  isBlocked?: boolean;
+
+  @ApiPropertyOptional({
+    example: 'ACTIF',
+    enum: ['ACTIF', 'BLOQUER'],
+    description: 'Statut du compte (ACTIF ou BLOQUER)',
+  })
+  @IsEnum(['ACTIF', 'BLOQUER'])
+  @IsOptional()
+  statusCompte?: string;
 }

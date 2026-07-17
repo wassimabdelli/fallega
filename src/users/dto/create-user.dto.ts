@@ -56,10 +56,10 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty({
-    example: 'JOUEUR',
-    enum: ['JOUEUR', 'OWNER', 'ARBITRE'],
+    example: 'USER',
+    enum: ['USER', 'ADMIN'],
     description: 'Rôle attribué',
   })
-  @IsEnum(['JOUEUR', 'OWNER', 'ARBITRE'])
+  @IsEnum(['USER', 'ADMIN'])
   role: string;
 }

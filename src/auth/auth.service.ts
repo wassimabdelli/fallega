@@ -22,7 +22,7 @@ export class AuthService {
     private emailService: EmailService,
   ) {}
 
-  // validate for login: also block if not verified
+  // validate for login: also block if not verified or if statusCompte is BLOQUER
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
     if (!user) return null;
@@ -31,6 +31,11 @@ export class AuthService {
       if (!user.isVerified) {
         throw new UnauthorizedException(
           'Veuillez vérifier votre email avant de vous connecter.',
+        );
+      }
+      if (user.statusCompte === 'BLOQUER') {
+        throw new UnauthorizedException(
+          'Votre compte est bloqué. Contactez l\'administrateur.',
         );
       }
       const {
@@ -230,6 +235,56 @@ export class AuthService {
 
     return { message: 'Mot de passe réinitialisé avec succès' };
   }
+  /**
+   * Admin-only login : même logique que validateUser mais refuse si role !== 'ADMIN'.
+   * Ne touche pas à la méthode login() existante utilisée par l'app Flutter.
+   */
+  async validateAdmin(email: string, password: string): Promise<any> {
+    const user = await this.userModel.findOne({ email });
+    if (!user) return null;
+
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) return null;
+
+    if (!user.isVerified) {
+      throw new UnauthorizedException(
+        'Veuillez vérifier votre email avant de vous connecter.',
+      );
+    }
+
+    if (user.statusCompte === 'BLOQUER') {
+      throw new UnauthorizedException(
+        'Votre compte est bloqué. Contactez l\'administrateur.',
+      );
+    }
+
+    if (user.role !== 'ADMIN') {
+      throw new UnauthorizedException(
+        'Accès refusé : réservé aux administrateurs.',
+      );
+    }
+
+    const {
+      password: _p,
+      verificationCode: _v,
+      codeExpiresAt: _c,
+      ...result
+    } = user.toObject();
+    return result;
+  }
+
+  async loginAdmin(user: any) {
+    const payload = {
+      email: user.email,
+      userId: user._id.toString(),
+      role: user.role,
+    };
+    return {
+      user,
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
  async findOrCreateGoogleUser(googleUser: {
   email: string;
   prenom: string;

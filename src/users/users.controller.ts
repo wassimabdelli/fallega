@@ -116,6 +116,13 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
+  @Patch(':id/toggle-block')
+  @ApiOperation({ summary: 'Basculer le statut de blocage d\'un utilisateur' })
+  @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
+  toggleBlockStatus(@Param('id') id: string) {
+    return this.usersService.toggleBlockStatus(id);
+  }
+
 
 
   

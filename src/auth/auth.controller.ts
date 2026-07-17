@@ -216,6 +216,48 @@ export class AuthController {
 
     return this.authService.resetPasswordWithCode(email, code, newPassword);
   }
+  // LOGIN ADMIN (web dashboard only — does NOT affect the Flutter login endpoint)
+  @Post('login-admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Connexion administrateur (dashboard web)',
+    description:
+      'Authentifie uniquement les utilisateurs avec role ADMIN. ' +
+      "Retourne un JWT. N'affecte pas l'endpoint /auth/login utilisé par l'app mobile.",
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email:    { type: 'string',  example: 'wassim@gmail.com' },
+        password: { type: 'string',  example: 'motdepasse' },
+      },
+      required: ['email', 'password'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Connexion admin réussie. Retourne un JWT + données user.',
+    schema: {
+      example: {
+        access_token: 'eyJhbGciOi...jwt...',
+        user: {
+          _id: '69c3e393...',
+          prenom: 'wassim',
+          nom: 'abdelli',
+          email: 'wassim@gmail.com',
+          role: 'ADMIN',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Identifiants invalides ou compte non admin.' })
+  async loginAdmin(@Body() dto: { email: string; password: string }) {
+    const user = await this.authService.validateAdmin(dto.email, dto.password);
+    if (!user) throw new UnauthorizedException('Email ou mot de passe incorrect');
+    return this.authService.loginAdmin(user);
+  }
+
   // GOOGLE AUTH - Step 1: Redirect to Google
 @Get('google')
 @UseGuards(GoogleAuthGuard)

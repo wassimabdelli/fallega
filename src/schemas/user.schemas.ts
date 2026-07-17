@@ -50,6 +50,16 @@ password: string;
 
     @Prop({ required: false })
     picture?: string;
+
+    @Prop({ required: false, default: false })
+    isBlocked?: boolean;
+
+    @Prop({
+      required: true,
+      enum: ['ACTIF', 'BLOQUER'],
+      default: 'ACTIF',
+    })
+    statusCompte: string;
   }
 
   export const UserSchema = SchemaFactory.createForClass(User);

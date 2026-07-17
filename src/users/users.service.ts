@@ -34,6 +34,22 @@ export class UsersService {
   remove(id: string) {
     return this.usermodel.findByIdAndDelete(id).exec();
   }
+
+  toggleBlockStatus(id: string) {
+    return this.usermodel.findById(id).exec().then(user => {
+      if (!user) {
+        throw new Error('Utilisateur non trouvé');
+      }
+      const currentStatus = user.statusCompte || 'ACTIF';
+      const newStatus = currentStatus === 'ACTIF' ? 'BLOQUER' : 'ACTIF';
+      return this.usermodel.findByIdAndUpdate(
+        id,
+        { statusCompte: newStatus },
+        { new: true, runValidators: true }
+      ).exec();
+    });
+  }
+
   // Recherche instantanée générale - cherche tous les utilisateurs par nom, prénom ou email
   async searchUsers(query: string) {
     if (!query || query.trim().length === 0) {

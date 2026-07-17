@@ -26,13 +26,21 @@ export class FriendshipService {
     return newFriendship.save();
   }
 
-  async getFriends(userId: string): Promise<Friendship[]> {
-    return this.friendshipModel
+  async getFriends(userId: string): Promise<any[]> {
+    const friendships = await this.friendshipModel
       .find({
         $or: [{ user1: userId }, { user2: userId }],
       } as any)
       .populate('user1 user2')
       .exec();
+    
+    // Transformer les données pour inclure les informations utilisateur complètes
+    return friendships.map(friendship => ({
+      _id: friendship._id,
+      user1: friendship.user1,
+      user2: friendship.user2,
+      invitation: friendship.invitation,
+    }));
   }
 
   async isFriend(userId1: string, userId2: string): Promise<boolean> {

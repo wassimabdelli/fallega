@@ -1,19 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { CreateEventDto } from './dto/create-event.dto';
+import { CreateEventDto, CreateEventFormDataDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @ApiTags('Events')
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Créer un nouvel événement' })
   @ApiResponse({ status: 201, description: 'Événement créé avec succès.' })
   create(@Body() createEventDto: CreateEventDto) {
     return this.eventsService.create(createEventDto);
+  }
+
+  @Post('with-image')
+  @ApiOperation({ summary: 'Créer un événement avec upload d\'image' })
+  @ApiResponse({ status: 201, description: 'Événement créé avec succès.' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('coverImage'))
+  async createWithImage(
+    @UploadedFile() file: any,
+    @Body() createEventDto: CreateEventFormDataDto,
+  ) {
+    if (!file) {
+      throw new BadRequestException('L\'image de couverture est requise');
+    }
+
+    // Upload image to Cloudinary
+    const uploadResult: any = await this.cloudinaryService.uploadImage(
+      file.buffer,
+      'events'
+    );
+
+    // Create event with image URL
+    const eventData: CreateEventDto = {
+      ...createEventDto,
+      coverImage: uploadResult.secure_url,
+    };
+
+    return this.eventsService.create(eventData);
   }
 
   @Get()
